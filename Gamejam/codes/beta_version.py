@@ -4,6 +4,8 @@ import random
 import math
 
 pygame.init()
+pygame.mixer.music.load("music/backgraund.mp3")
+pygame.mixer.music.play(-1)
 x=0
 y=0
 x1_enemy=923
@@ -11,25 +13,40 @@ x2_enemy=1450
 y1_enemy=650
 y2_enemy=1200
 enemyAnimation="run"
+last_direction = "right"
 screen_width, screen_height = 800,800
 screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
 playerRun= [
-       pygame.transform.scale(pygame.image.load("image/run/run1.png"), (70,70)),
-       pygame.transform.scale(pygame.image.load("image/run/run2.png"), (70,70))
+        pygame.transform.scale(pygame.image.load("image/run/run1.png"), (70,70)),
+        pygame.transform.scale(pygame.image.load("image/run/run2.png"), (70,70))
 ]
 
 
 enemyRun= [
-       pygame.transform.scale(pygame.image.load("image/enemy/enemy1.png"), (70,70)),
-       pygame.transform.scale(pygame.image.load("image/enemy/enemy2.png"), (70,70))
+        pygame.transform.scale(pygame.image.load("image/enemy/enemy1.png"), (70,70)),
+        pygame.transform.scale(pygame.image.load("image/enemy/enemy2.png"), (70,70))
 ]
 
 playerHit= [
-       pygame.transform.scale(pygame.image.load("image/hit/hit1.png"), (70,70)),
-       pygame.transform.scale(pygame.image.load("image/hit/hit2.png"), (70,70))
+        pygame.transform.scale(pygame.image.load("image/hit/hit1.png"), (70,70)),
+        pygame.transform.scale(pygame.image.load("image/hit/hit2.png"), (70,70))
 ]
-
+reverse_playerRun=[
+        pygame.transform.flip(playerRun[0], True,False),
+        pygame.transform.flip(playerRun[1], True,False)
+     
+]
+reverse_playerHit=[
+        pygame.transform.flip(playerHit[0], True,False),
+        pygame.transform.flip(playerHit[1], True,False)
+     
+]
+reverse_enemyRun=[
+        pygame.transform.flip(enemyRun[0], True,False),
+        pygame.transform.flip(enemyRun[1], True,False)
+     
+]
 level1_image=pygame.image.load("image/level1.png")
 level1=pygame.transform.scale(level1_image, (2400,2400))
 animEnemy=0
@@ -88,7 +105,6 @@ player_x, player_y = screen_width // 2, screen_height // 2
 player_speed = 13
 running = True
 while running:
-    screen.fill(WHITE)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -104,12 +120,14 @@ while running:
         animation="run"
         x1_enemy-=player_speed
         x2_enemy-=player_speed
+        last_direction = "right"
     if keys[pygame.K_a]:
         x += player_speed
         shift_x=shift_x+player_speed
         animation="run"
         x1_enemy+=player_speed
         x2_enemy+=player_speed
+        last_direction = "left"
     if keys[pygame.K_s]:
         y -= player_speed
         shift_y=shift_y-player_speed
@@ -153,11 +171,20 @@ while running:
         
     # Отображение игрока
     if keys[pygame.K_f]:
-        screen.blit(playerHit[anim], (player_x,player_y))
+        
+        if last_direction == "left":
+            screen.blit(reverse_playerHit[anim], (player_x,player_y))
+        else:
+             screen.blit(playerHit[anim], (player_x,player_y))
     elif keys[pygame.K_w]:
-        screen.blit(playerRun[anim], (player_x,player_y))    
+        screen.blit(playerRun[anim], (player_x,player_y))  
+    elif keys[pygame.K_a]:
+        screen.blit(reverse_playerRun[anim], (player_x,player_y))    
     else:
-        screen.blit(playerRun[anim], (player_x,player_y))
+        if last_direction == "left":
+            screen.blit(reverse_playerRun[anim], (player_x,player_y))
+        else:
+             screen.blit(playerRun[anim], (player_x,player_y))
     pygame.display.flip()
     
     clock.tick(15)
