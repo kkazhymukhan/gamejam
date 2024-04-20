@@ -41,7 +41,9 @@ class Enemy:
         pygame.draw.circle(screen, RED, (self.x, self.y), 10)
 
     # Метод для обновления позиции врага
-    def update(self, player_x, player_y):
+    def update(self, player_x, player_y, shift_x, shift_y):
+        self.x=self.x+shift_x
+        self.y=self.y+shift_y
         if self.is_player_visible(player_y, player_x):
             # Движение в направлении игрока
             angle = math.atan2(player_y - self.y, player_x - self.x)
@@ -84,17 +86,23 @@ while running:
     #move a player
     animation="peace"
     keys = pygame.key.get_pressed()
+    shift_x=0
+    shift_y=0
     if keys[pygame.K_d]:
         x -= player_speed
+        shift_x=shift_x-player_speed
         animation="run"
     if keys[pygame.K_a]:
         x += player_speed
+        shift_x=shift_x+player_speed
         animation="run"
     if keys[pygame.K_s]:
         y -= player_speed
+        shift_y=shift_y-player_speed
         animation="run"
     if keys[pygame.K_w]:
         y += player_speed
+        shift_y=shift_y+player_speed
         animation="run"
 
     
@@ -102,7 +110,7 @@ while running:
 
     # Отображение и обновление позиции врагов
     for enemy in enemies:
-        enemy.update(player_x, player_y)
+        enemy.update(player_x, player_y, shift_x, shift_y)
         enemy.draw()
     #animation
     if animation=="hit":
