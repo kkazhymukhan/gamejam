@@ -6,23 +6,33 @@ import math
 pygame.init()
 x=0
 y=0
-screen_width, screen_height = 800, 600
+x1_enemy=923
+x2_enemy=1450
+y1_enemy=650
+y2_enemy=1200
+enemyAnimation="run"
+screen_width, screen_height = 800,800
 screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
 playerRun= [
-       pygame.transform.scale(pygame.image.load("image/run/run1.png"), (60,60)),
-       pygame.transform.scale(pygame.image.load("image/run/run2.png"), (60,60))
+       pygame.transform.scale(pygame.image.load("image/run/run1.png"), (70,70)),
+       pygame.transform.scale(pygame.image.load("image/run/run2.png"), (70,70))
 ]
 
 
+enemyRun= [
+       pygame.transform.scale(pygame.image.load("image/enemy/enemy1.png"), (70,70)),
+       pygame.transform.scale(pygame.image.load("image/enemy/enemy2.png"), (70,70))
+]
+
 playerHit= [
-       pygame.transform.scale(pygame.image.load("image/hit/hit1.png"), (60,60)),
-       pygame.transform.scale(pygame.image.load("image/hit/hit2.png"), (60,60))
+       pygame.transform.scale(pygame.image.load("image/hit/hit1.png"), (70,70)),
+       pygame.transform.scale(pygame.image.load("image/hit/hit2.png"), (70,70))
 ]
 
 level1_image=pygame.image.load("image/level1.png")
 level1=pygame.transform.scale(level1_image, (2400,2400))
-
+animEnemy=0
 anim=0
 # Цвета
 WHITE = (255, 255, 255)
@@ -38,13 +48,14 @@ class Enemy:
 
     # Метод для отображения врага
     def draw(self):
-        pygame.draw.circle(screen, RED, (self.x, self.y), 10)
+        screen.blit(enemyRun[animEnemy], (self.x, self.y))
 
     # Метод для обновления позиции врага
     def update(self, player_x, player_y, shift_x, shift_y):
+        print(self.x,",", self.y ,"______",x1_enemy,"-",x2_enemy,"---",y1_enemy,"-",y2_enemy)
         self.x=self.x+shift_x
         self.y=self.y+shift_y
-        if self.is_player_visible(player_y, player_x):
+        if self.is_player_visible(player_x, player_y):
             # Движение в направлении игрока
             angle = math.atan2(player_y - self.y, player_x - self.x)
             self.x += self.speed * math.cos(angle)
@@ -61,7 +72,7 @@ class Enemy:
                 self.x += self.speed
 
             # Смена направления при достижении края экрана
-            if self.x < 0 or self.x > 2400 or self.y < 0 or self.y > 2400:
+            if self.x < x1_enemy or self.x > x2_enemy or self.y < y1_enemy or self.y > y2_enemy:
                 self.direction = random.choice(["up", "down", "left", "right"])
 
     # Метод для определения видимости игрока
@@ -70,12 +81,11 @@ class Enemy:
         return distance < 200  # Расстояние видимости
 
 # Создание врагов
-enemies = [Enemy(random.randint(50, screen_width - 50), random.randint(50, screen_height - 50), 2) for _ in range(5)]
+enemies = [Enemy(random.randint(923,1500), random.randint(650,1250), 4) for _ in range(5)]
 
 # Позиция игрока
 player_x, player_y = screen_width // 2, screen_height // 2
-player_speed = 5
-
+player_speed = 13
 running = True
 while running:
     screen.fill(WHITE)
@@ -92,19 +102,27 @@ while running:
         x -= player_speed
         shift_x=shift_x-player_speed
         animation="run"
+        x1_enemy-=player_speed
+        x2_enemy-=player_speed
     if keys[pygame.K_a]:
         x += player_speed
         shift_x=shift_x+player_speed
         animation="run"
+        x1_enemy+=player_speed
+        x2_enemy+=player_speed
     if keys[pygame.K_s]:
         y -= player_speed
         shift_y=shift_y-player_speed
         animation="run"
+        y1_enemy-=player_speed
+        y2_enemy-=player_speed
     if keys[pygame.K_w]:
         y += player_speed
         shift_y=shift_y+player_speed
         animation="run"
-
+        y1_enemy+=player_speed
+        y2_enemy+=player_speed
+    
     
     screen.blit(level1, (x,y))
 
@@ -113,17 +131,25 @@ while running:
         enemy.update(player_x, player_y, shift_x, shift_y)
         enemy.draw()
     #animation
+    if enemyAnimation=="run":
+                if animEnemy==1:
+                    animEnemy=0
+                else:
+                    animEnemy +=1
     if animation=="hit":
                 if anim==1:
                     anim=0
                 else:
                     anim +=1
+    
     elif animation=="run":
                if anim==1:
                     anim=0
                else:
                     anim +=1
-    
+    if animation=="peace":
+         if anim ==1:
+              anim=0
         
     # Отображение игрока
     if keys[pygame.K_f]:
@@ -132,9 +158,9 @@ while running:
         screen.blit(playerRun[anim], (player_x,player_y))    
     else:
         screen.blit(playerRun[anim], (player_x,player_y))
-
     pygame.display.flip()
-    clock.tick(60)
+    
+    clock.tick(15)
 
 pygame.quit()
 sys.exit()
