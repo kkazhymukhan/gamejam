@@ -4,19 +4,26 @@ import random
 import math
 
 pygame.init()
+screen_width, screen_height = 800,800
+screen = pygame.display.set_mode((screen_width, screen_height))
+clock = pygame.time.Clock()
+
+
+#music
 pygame.mixer.music.load("music/backgraund.mp3")
 pygame.mixer.music.play(-1)
+
+#coordinates
 x=0
 y=0
 x1_enemy=923
 x2_enemy=1450
 y1_enemy=650
 y2_enemy=1200
-enemyAnimation="run"
-last_direction = "right"
-screen_width, screen_height = 800,800
-screen = pygame.display.set_mode((screen_width, screen_height))
-clock = pygame.time.Clock()
+
+
+
+#loading image
 playerRun= [
         pygame.transform.scale(pygame.image.load("image/run/run1.png"), (70,70)),
         pygame.transform.scale(pygame.image.load("image/run/run2.png"), (70,70))
@@ -49,11 +56,14 @@ reverse_enemyRun=[
 ]
 level1_image=pygame.image.load("image/level1.png")
 level1=pygame.transform.scale(level1_image, (2400,2400))
+
+#animation settings
 animEnemy=0
 anim=0
-# Цвета
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
+anim_last=3
+anim_divide=2
+enemyAnimation="run"
+last_direction = "right"
 
 # Класс для врагов
 class Enemy:
@@ -65,11 +75,12 @@ class Enemy:
 
     # Метод для отображения врага
     def draw(self):
-        screen.blit(enemyRun[animEnemy], (self.x, self.y))
-
+        if self.direction=="right":
+            screen.blit(reverse_enemyRun[animEnemy//anim_divide], (self.x, self.y))
+        else:
+            screen.blit(enemyRun[animEnemy//anim_divide], (self.x, self.y))
     # Метод для обновления позиции врага
     def update(self, player_x, player_y, shift_x, shift_y):
-        print(self.x,",", self.y ,"______",x1_enemy,"-",x2_enemy,"---",y1_enemy,"-",y2_enemy)
         self.x=self.x+shift_x
         self.y=self.y+shift_y
         if self.is_player_visible(player_x, player_y):
@@ -103,17 +114,24 @@ enemies = [Enemy(random.randint(923,1500), random.randint(650,1250), 4) for _ in
 # Позиция игрока
 player_x, player_y = screen_width // 2, screen_height // 2
 player_speed = 13
+
+
 running = True
+
+
+
 while running:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    #move a player
     animation="peace"
-    keys = pygame.key.get_pressed()
     shift_x=0
     shift_y=0
+
+
+    #move a player
+    keys = pygame.key.get_pressed()
     if keys[pygame.K_d]:
         x -= player_speed
         shift_x=shift_x-player_speed
@@ -141,50 +159,55 @@ while running:
         y1_enemy+=player_speed
         y2_enemy+=player_speed
     
-    
+    #backgraund
     screen.blit(level1, (x,y))
+
 
     # Отображение и обновление позиции врагов
     for enemy in enemies:
         enemy.update(player_x, player_y, shift_x, shift_y)
         enemy.draw()
+
+
     #animation
     if enemyAnimation=="run":
-                if animEnemy==1:
+                if animEnemy==anim_last:
                     animEnemy=0
                 else:
                     animEnemy +=1
     if animation=="hit":
-                if anim==1:
+                if anim==anim_last:
                     anim=0
                 else:
                     anim +=1
     
     elif animation=="run":
-               if anim==1:
+               if anim==anim_last:
                     anim=0
                else:
                     anim +=1
     if animation=="peace":
-         if anim ==1:
+         if anim > 1:
               anim=0
         
     # Отображение игрока
     if keys[pygame.K_f]:
         
         if last_direction == "left":
-            screen.blit(reverse_playerHit[anim], (player_x,player_y))
+            screen.blit(reverse_playerHit[anim//anim_divide], (player_x,player_y))
         else:
-             screen.blit(playerHit[anim], (player_x,player_y))
+             screen.blit(playerHit[anim//anim_divide], (player_x,player_y))
     elif keys[pygame.K_w]:
-        screen.blit(playerRun[anim], (player_x,player_y))  
+        screen.blit(playerRun[anim//anim_divide], (player_x,player_y))  
     elif keys[pygame.K_a]:
-        screen.blit(reverse_playerRun[anim], (player_x,player_y))    
+        screen.blit(reverse_playerRun[anim//anim_divide], (player_x,player_y))    
     else:
         if last_direction == "left":
-            screen.blit(reverse_playerRun[anim], (player_x,player_y))
+            screen.blit(reverse_playerRun[anim//anim_divide], (player_x,player_y))
         else:
-             screen.blit(playerRun[anim], (player_x,player_y))
+             screen.blit(playerRun[anim//anim_divide], (player_x,player_y))
+
+
     pygame.display.flip()
     
     clock.tick(15)
