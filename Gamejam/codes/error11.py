@@ -4,65 +4,84 @@ import random
 import math
 
 pygame.init()
-screen_width, screen_height = 800,800
+screen_width, screen_height = 800, 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
 
+# Загрузка музыки
+background_song = pygame.mixer.Sound("music/backgraund.mp3")
+background_song.play(-1)
+stop_start = 0
 
-#music
-pygame.mixer.music.load("music/backgraund.mp3")
-pygame.mixer.music.play(-1)
+hit_sound = [
+    pygame.mixer.Sound("music/hit1.mp3"),
+    pygame.mixer.Sound("music/hit2.mp3")
+]
+number_sound = 0
 
-#coordinates
-x=0
-y=0
-x1_enemy=923
-x2_enemy=1450
-y1_enemy=650
-y2_enemy=1200
+# Координаты
+x = -50
+y = -500
+x1_enemy = 873
+x2_enemy = 1400
+y1_enemy = 150
+y2_enemy = 600
 
-
-
-#loading image
-playerRun= [
-        pygame.transform.scale(pygame.image.load("image/run/run1.png"), (70,70)),
-        pygame.transform.scale(pygame.image.load("image/run/run2.png"), (70,70))
+# Загрузка изображений
+hearts = [
+    pygame.transform.scale(pygame.image.load("image/hearts/xpfull.png"), (320, 60)),
+    pygame.transform.scale(pygame.image.load("image/hearts/xp1.png"), (320, 60)),
+    pygame.transform.scale(pygame.image.load("image/hearts/xp2.png"), (320, 60)),
+    pygame.transform.scale(pygame.image.load("image/hearts/xp3.png"), (320, 60)),
+    pygame.transform.scale(pygame.image.load("image/hearts/xp4.png"), (320, 60)),
+    pygame.transform.scale(pygame.image.load("image/hearts/xp5.png"), (320, 60)),
+    pygame.transform.scale(pygame.image.load("image/hearts/xp6.png"), (320, 60)),
+    pygame.transform.scale(pygame.image.load("image/hearts/xp7.png"), (320, 60)),
+    pygame.transform.scale(pygame.image.load("image/hearts/xp8.png"), (320, 60)),
+    pygame.transform.scale(pygame.image.load("image/hearts/xp9.png"), (320, 60)),
+    pygame.transform.scale(pygame.image.load("image/hearts/xp10.png"), (320, 60)),
 ]
 
-
-enemyRun= [
-        pygame.transform.scale(pygame.image.load("image/enemy/enemy1.png"), (70,70)),
-        pygame.transform.scale(pygame.image.load("image/enemy/enemy2.png"), (70,70))
+playerRun = [
+    pygame.transform.scale(pygame.image.load("image/run/run1.png"), (100, 80)),
+    pygame.transform.scale(pygame.image.load("image/run/run2.png"), (100, 80))
 ]
 
-playerHit= [
-        pygame.transform.scale(pygame.image.load("image/hit/hit1.png"), (70,70)),
-        pygame.transform.scale(pygame.image.load("image/hit/hit2.png"), (70,70))
+enemyRun = [
+    pygame.transform.scale(pygame.image.load("image/enemy/enemy1.png"), (90, 85)),
+    pygame.transform.scale(pygame.image.load("image/enemy/enemy2.png"), (90, 85))
 ]
-reverse_playerRun=[
-        pygame.transform.flip(playerRun[0], True,False),
-        pygame.transform.flip(playerRun[1], True,False)
-     
-]
-reverse_playerHit=[
-        pygame.transform.flip(playerHit[0], True,False),
-        pygame.transform.flip(playerHit[1], True,False)
-     
-]
-reverse_enemyRun=[
-        pygame.transform.flip(enemyRun[0], True,False),
-        pygame.transform.flip(enemyRun[1], True,False)
-     
-]
-level1_image=pygame.image.load("image/level1.png")
-level1=pygame.transform.scale(level1_image, (2400,2400))
 
-#animation settings
-animEnemy=0
-anim=0
-anim_last=3
-anim_divide=2
-enemyAnimation="run"
+playerHit = [
+    pygame.transform.scale(pygame.image.load("image/hit/hit1.png"), (100, 80)),
+    pygame.transform.scale(pygame.image.load("image/hit/hit2.png"), (100, 80))
+]
+
+reverse_playerRun = [
+    pygame.transform.flip(playerRun[0], True, False),
+    pygame.transform.flip(playerRun[1], True, False)
+]
+
+reverse_playerHit = [
+    pygame.transform.flip(playerHit[0], True, False),
+    pygame.transform.flip(playerHit[1], True, False)
+]
+
+reverse_enemyRun = [
+    pygame.transform.flip(enemyRun[0], True, False),
+    pygame.transform.flip(enemyRun[1], True, False)
+]
+
+level1_image = pygame.image.load("image/level1.png")
+level1 = pygame.transform.scale(level1_image, (2400, 2400))
+
+# Настройки анимации
+animEnemy = 0
+anim = 0
+anim_heart = 0
+anim_last = 1
+anim_divide = 1
+enemyAnimation = "run"
 last_direction = "right"
 
 # Класс для врагов
@@ -75,14 +94,15 @@ class Enemy:
 
     # Метод для отображения врага
     def draw(self):
-        if self.direction=="right":
-            screen.blit(reverse_enemyRun[animEnemy//anim_divide], (self.x, self.y))
+        if self.direction == "right":
+            screen.blit(enemyRun[animEnemy // anim_divide], (self.x, self.y))
         else:
-            screen.blit(enemyRun[animEnemy//anim_divide], (self.x, self.y))
+            screen.blit(reverse_enemyRun[animEnemy // anim_divide], (self.x, self.y))
+
     # Метод для обновления позиции врага
     def update(self, player_x, player_y, shift_x, shift_y):
-        self.x=self.x+shift_x
-        self.y=self.y+shift_y
+        self.x = self.x + shift_x
+        self.y = self.y + shift_y
         if self.is_player_visible(player_x, player_y):
             # Движение в направлении игрока
             angle = math.atan2(player_y - self.y, player_x - self.x)
@@ -109,108 +129,108 @@ class Enemy:
         return distance < 200  # Расстояние видимости
 
 # Создание врагов
-enemies = [Enemy(random.randint(923,1500), random.randint(650,1250), 4) for _ in range(5)]
+enemies = [Enemy(random.randint(x1_enemy, x2_enemy), random.randint(y1_enemy, y2_enemy), 4) for _ in range(5)]
 
 # Позиция игрока
 player_x, player_y = screen_width // 2, screen_height // 2
 player_speed = 13
 
-
 running = True
-
-
+hit_animation = False
+mouse_button_down = False
 
 while running:
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    animation="peace"
-    shift_x=0
-    shift_y=0
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                print("Удар!")
+                hit_animation = True
+                if number_sound == 0:
+                    hit_sound[0].play()
+                    number_sound = 1
+                else:
+                    hit_sound[1].play()
+                    number_sound = 0
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1:
+                hit_animation = False
 
-
-    #move a player
+    # Движение игрока
     keys = pygame.key.get_pressed()
     if keys[pygame.K_d]:
         x -= player_speed
-        shift_x=shift_x-player_speed
-        animation="run"
-        x1_enemy-=player_speed
-        x2_enemy-=player_speed
+        shift_x = -player_speed
         last_direction = "right"
-    if keys[pygame.K_a]:
+    elif keys[pygame.K_a]:
         x += player_speed
-        shift_x=shift_x+player_speed
-        animation="run"
-        x1_enemy+=player_speed
-        x2_enemy+=player_speed
+        shift_x = player_speed
         last_direction = "left"
+    else:
+        shift_x = 0
+
     if keys[pygame.K_s]:
         y -= player_speed
-        shift_y=shift_y-player_speed
-        animation="run"
-        y1_enemy-=player_speed
-        y2_enemy-=player_speed
-    if keys[pygame.K_w]:
+        shift_y = -player_speed
+    elif keys[pygame.K_w]:
         y += player_speed
-        shift_y=shift_y+player_speed
-        animation="run"
-        y1_enemy+=player_speed
-        y2_enemy+=player_speed
-    
-    #backgraund
-    screen.blit(level1, (x,y))
+        shift_y = player_speed
+    else:
+        shift_y = 0
 
+    # Отображение фона
+    screen.blit(level1, (x, y))
 
-    # Отображение и обновление позиции врагов
+    # Отображение сердец
+    screen.blit(hearts[0], (10, 10))
+
+        # отображение и обновление позиции врагов, анимация бега
     for enemy in enemies:
         enemy.update(player_x, player_y, shift_x, shift_y)
         enemy.draw()
+        animEnemy = (animEnemy + 1) % (len(enemyRun) * anim_divide)  # Обновление переменной для анимации врагов
 
 
-    #animation
-    if enemyAnimation=="run":
-                if animEnemy==anim_last:
-                    animEnemy=0
-                else:
-                    animEnemy +=1
-    if animation=="hit":
-                if anim==anim_last:
-                    anim=0
-                else:
-                    anim +=1
-    
-    elif animation=="run":
-               if anim==anim_last:
-                    anim=0
-               else:
-                    anim +=1
-    if animation=="peace":
-         if anim > 1:
-              anim=0
-        
-    # Отображение игрока
-    if keys[pygame.K_f]:
-        
+
+    # Анимация удара
+    if hit_animation:
         if last_direction == "left":
-            screen.blit(reverse_playerHit[anim//anim_divide], (player_x,player_y))
+            screen.blit(reverse_playerHit[anim // anim_divide], (player_x, player_y))
         else:
-             screen.blit(playerHit[anim//anim_divide], (player_x,player_y))
-    elif keys[pygame.K_w]:
-        screen.blit(playerRun[anim//anim_divide], (player_x,player_y))  
-    elif keys[pygame.K_a]:
-        screen.blit(reverse_playerRun[anim//anim_divide], (player_x,player_y))    
+            screen.blit(playerHit[anim // anim_divide], (player_x, player_y))
+        if anim == anim_last:
+            anim = 0
+        else:
+            anim += 1
     else:
-        if last_direction == "left":
-            screen.blit(reverse_playerRun[anim//anim_divide], (player_x,player_y))
+        # Анимация бега только при движении
+        if shift_x != 0 or shift_y != 0:
+            if last_direction == "left":
+                screen.blit(reverse_playerRun[anim // anim_divide], (player_x, player_y))
+            else:
+                screen.blit(playerRun[anim // anim_divide], (player_x, player_y))
+            if anim == anim_last:
+                anim = 0
+            else:
+                anim += 1
         else:
-             screen.blit(playerRun[anim//anim_divide], (player_x,player_y))
+            # Отображение стоящего персонажа
+            if last_direction == "left":
+                screen.blit(reverse_playerRun[0], (player_x, player_y))
+            else:
+                screen.blit(playerRun[0], (player_x, player_y))
 
-    
+    # Остановка и возобновление музыки
+    if keys[pygame.K_t]:
+        background_song.stop()
+        stop_start = 1
+    if keys[pygame.K_y] and stop_start == 1:
+        background_song.play()
+        stop_start = 0
+
     pygame.display.flip()
-    
-    clock.tick(15)
+    clock.tick(10)
 
 pygame.quit()
 sys.exit()
