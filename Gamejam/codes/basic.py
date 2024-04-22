@@ -3,9 +3,24 @@ import sys
 import random
 import math 
 from UI import Button
+from UI import Lose
+
+def restart_game():
+    global i, x, y, x1_enemy, x2_enemy, y1_enemy, y2_enemy, enemies, player_x, player_y, running
+    i = 0
+    x = -50
+    y = -500
+    x1_enemy = 843
+    x2_enemy = 1350
+    y1_enemy = 120
+    y2_enemy = 670
+    enemies = [Enemy(random.randint(x1_enemy, x2_enemy), random.randint(y1_enemy, y2_enemy), 4) for _ in range(5)]
+    player_x, player_y = screen_width // 2, screen_height // 2
+    running = True
 
 pygame.init()
 button=Button(True)
+lose=Lose(True)
 screen_width, screen_height = 800, 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
@@ -46,8 +61,6 @@ reverse_playerRun=image.reverse_playerRun
 
 level1_image = pygame.image.load("image/level1.png")
 level1 = pygame.transform.scale(level1_image, (2400, 2400))
-lose_image=pygame.image.load("image/lose.png")
-lose=pygame.transform.scale(lose_image, (screen_width, screen_height))
 # Настройки анимации
 i=0
 animEnemy = 0
@@ -172,6 +185,10 @@ while running:
             enemy.draw(screen,reverse_enemyRun, enemyRun, anim_divide, animEnemy)
             if enemy.x  + 50 >= player_x and enemy.x - 50 <= player_x:
                 if enemy.y + 50 >= player_y and enemy.y - 50 <= player_y:
+                    angle = math.atan2(player_y - enemy.y, player_x - enemy.x)
+                    enemy.x += 10*enemy.speed * math.cos(angle+math.pi)
+                    enemy.y += 10*enemy.speed * math.sin(angle+math.pi)
+                    enemy.draw(screen,reverse_enemyRun, enemyRun, anim_divide, animEnemy)
                     if i<9:
                         i+=1
                     print(i)
@@ -214,9 +231,20 @@ while running:
 
 
     if i >= len(hearts) - 1:
-        screen.blit(lose, (0, 0))
+        restart_clicked=True
+        lose.Menu(screen)
+        lose.handle_event(event)
+
+
+        if lose.restart_clicked==False:
+            restart_game()
+        
+
+        
     pygame.display.flip()
     clock.tick(10)
 
 pygame.quit()
 sys.exit()
+
+
