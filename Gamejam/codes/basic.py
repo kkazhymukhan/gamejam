@@ -4,6 +4,9 @@ import random
 import math 
 from UI import Button
 from UI import Lose
+from poligon import Poligon
+
+
 
 def restart_game():
     global i, x, y, x1_enemy, x2_enemy, y1_enemy, y2_enemy, enemies, player_x, player_y, running
@@ -21,10 +24,11 @@ def restart_game():
 pygame.init()
 button=Button(True)
 lose=Lose(True)
+
 screen_width, screen_height = 800, 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
-
+poligon=Poligon()
 
 
 # Загрузка музыки
@@ -80,7 +84,7 @@ enemies = [Enemy(random.randint(x1_enemy, x2_enemy), random.randint(y1_enemy, y2
 
 # Позиция игрока
 player_x, player_y = screen_width // 2, screen_height // 2
-player_speed = 13
+player_speed = 15
 
 running = True
 hit_animation = False
@@ -101,14 +105,18 @@ while running:
 
 
     elif button.visible==False:
+        
+
+
         if ui_visible==True:
             background_UI_song.stop()
             background_song.play()
             ui_visible = False
+        
             
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                print("Удар!")
+                #print("Удар!")
                 hit_animation = True
                 animation="hit"
                 if number_sound == 0:
@@ -125,27 +133,28 @@ while running:
         shift_x=0
         shift_y=0
         animation = "peace"
-        if keys[pygame.K_d]:
+        
+        if keys[pygame.K_d] and poligon.is_inside_polygons(x-player_speed,y):
             x -= player_speed
             shift_x=shift_x-player_speed
             animation="run"
             x1_enemy-=player_speed
             x2_enemy-=player_speed
             last_direction = "right"
-        elif keys[pygame.K_a]:
+        elif keys[pygame.K_a] and poligon.is_inside_polygons(x+player_speed,y):
             x += player_speed
             shift_x=shift_x+player_speed
             animation="run"
             x1_enemy+=player_speed
             x2_enemy+=player_speed
             last_direction = "left"
-        if keys[pygame.K_s]:
+        if keys[pygame.K_s] and poligon.is_inside_polygons(x,y-player_speed):
             y -= player_speed
             shift_y=shift_y-player_speed
             animation="run"
             y1_enemy-=player_speed
             y2_enemy-=player_speed
-        elif keys[pygame.K_w]:
+        elif keys[pygame.K_w]and poligon.is_inside_polygons(x,y+player_speed):
             y += player_speed
             shift_y=shift_y+player_speed
             animation="run"
@@ -172,13 +181,15 @@ while running:
                     anim +=1
     
 
-
     # Отображение фона
         screen.blit(level1, (x, y))
 
     # Отображение сердец
         screen.blit(hearts[i], (10, 10))
-
+        poligon.draw(screen)
+        poligon.is_inside_polygons(x,y)
+        
+        
     # Отображение и обновление позиции врагов
         for enemy in enemies:
             enemy.update(player_x, player_y, shift_x, shift_y,x1_enemy,x2_enemy, y1_enemy, y2_enemy)
@@ -191,11 +202,11 @@ while running:
                     enemy.draw(screen,reverse_enemyRun, enemyRun, anim_divide, animEnemy)
                     if i<9:
                         i+=1
-                    print(i)
-                    print(len(hearts))
+                    #print(i)
+                    #print(len(hearts))
                     
             
-                print("VJVJSVBKJBVJKBVJKBKJBJKSJBVKSBVVJBJKBKVS")
+                #print("VJVJSVBKJBVJKBVJKBKJBJKSJBVKSBVVJBJKBKVS")
 
 
     # Анимация удара
@@ -230,8 +241,8 @@ while running:
     
 
 
-    if i >= len(hearts) - 1:
-        restart_clicked=True
+    if i >= len(hearts)-1:
+        lose.restart_clicked=True
         lose.Menu(screen)
         lose.handle_event(event)
 
@@ -239,7 +250,7 @@ while running:
         if lose.restart_clicked==False:
             restart_game()
         
-
+    #print(x,",",y)
         
     pygame.display.flip()
     clock.tick(10)
