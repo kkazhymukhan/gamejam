@@ -1,0 +1,172 @@
+import os
+import pygame
+import sys
+import random
+import image
+import import_image
+
+pygame.init()
+
+WIDTH, HEIGHT = 600, 600
+
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("двигается")
+
+# Глобальные переменные для времени и состояния воды
+start_time = pygame.time.get_ticks()
+water_height = 0
+water_speed = 1  # Скорость подъема воды (в пикселях за кадр)
+show_water = False
+water_duration = 1500  # Длительность отображения воды (в миллисекундах)
+water_counter = water_duration
+show_safe_zone = False
+safe_zone_duration = 3000  # Длительность появления safe-зоны (в миллисекундах)
+safe_zone_counter = safe_zone_duration
+
+hrts = import_image.image.hearts
+i = 0
+# Картинки
+player_imgs = [pygame.image.load("image/run/run1.png"),
+               pygame.image.load("image/run/run2.png")]
+for i in range(len(player_imgs)):
+    player_imgs[i] = pygame.transform.scale(player_imgs[i], (int(120), int(96)))
+
+player_hit_img = pygame.image.load("image/hit/hit2.png")
+player_hit_img = pygame.transform.scale(player_hit_img, (int(120), int(96)))
+
+player_rect = player_imgs[0].get_rect()
+
+#
+player_rect.centerx = WIDTH // 2
+player_rect.bottom = HEIGHT - 10
+player_speed = 7
+current_player_img = 0
+
+# Определите границы прямоугольника
+rect_left = 75
+rect_right = 565
+rect_top = 59
+rect_bottom = 567
+
+i_r = 1000
+
+et = 4000
+st = 3000
+kd = 3000
+wtr = False
+# Фон
+background_img = pygame.image.load("image/bosslvl.png")
+background_img = pygame.transform.scale(background_img, (600, 600))
+background_rect = background_img.get_rect()
+
+safe_zone_x1, safe_zone_x2, safe_zone_y1, safe_zone_y2 = 0, 0, 0, 0
+# Основной цикл игры
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Переменные для управления движением и взаимодействия игрока
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        player_rect.x -= player_speed
+        current_player_img = (current_player_img + 1) % len(player_imgs)
+    if keys[pygame.K_RIGHT]:
+        player_rect.x += player_speed
+        current_player_img = (current_player_img + 1) % len(player_imgs)
+    if keys[pygame.K_UP]:
+        player_rect.y -= player_speed
+        current_player_img = (current_player_img + 1) % len(player_imgs)
+    if keys[pygame.K_DOWN]:
+        player_rect.y += player_speed
+        current_player_img = (current_player_img + 1) % len(player_imgs)
+
+    # Ограничение движения игрока в пределах прямоугольника
+    player_rect.x = max(rect_left, min(player_rect.x, rect_right - player_rect.width))
+    player_rect.y = max(rect_top, min(player_rect.y, rect_bottom - player_rect.height))
+
+    screen.blit(hrts[i-1], (10, 10))
+    # Отрисовка фона
+    screen.blit(background_img, background_rect)
+    # Обработка условий времени для отображения safe-зоны
+    # current_time = pygame.time.get_ticks()
+    # if current_time - start_time >= safe_zone_counter:
+    #     show_safe_zone = not show_safe_zone
+    #     safe_zone_counter = current_time + safe_zone_duration
+    #
+    #     # Генерация случайных координат для safe-зоны
+    #     safe_zone_x1 = random.randint(rect_left, rect_right - 100)
+    #     safe_zone_x2 = random.randint(rect_left, rect_right - 100)
+    #     safe_zone_y1 = random.randint(rect_top, rect_bottom - 20)
+    #     safe_zone_y2 = random.randint(rect_top, rect_bottom - 20)
+
+    et -= 60
+    if et <= 0 and wtr == False:
+        wtr = True
+        safe_zone_x1 = random.randint(rect_left, rect_right - 100)
+        safe_zone_x2 = random.randint(rect_left, rect_right - 100)
+        safe_zone_y1 = random.randint(rect_top, rect_bottom - 20)
+        safe_zone_y2 = random.randint(rect_top, rect_bottom - 20)
+        et = 4000
+    if wtr:
+        st -= 60
+        pygame.draw.rect(screen, RED, (safe_zone_x1, safe_zone_y1, 100, 20))
+        pygame.draw.rect(screen, RED, (safe_zone_x2, safe_zone_y2, 100, 20))
+        if st <= 0:
+            pygame.draw.rect(screen, BLUE, (rect_left, rect_top, rect_right - rect_left, rect_bottom - rect_top))
+            kd -= 60
+            if (not (player_rect.x - 120 <= safe_zone_x1 and player_rect.x + 120 >= safe_zone_x1 and player_rect.y - 96 <= safe_zone_y1 and player_rect.y + 96 >= safe_zone_y1)
+                    and not (player_rect.x - 120 <= safe_zone_x2 and player_rect.x + 120 >= safe_zone_x2 and player_rect.y - 96 <= safe_zone_y2 and player_rect.y + 96 >= safe_zone_y2)):
+                i_r -= 60
+            if i_r < 1:
+                print('e')
+                i += 1
+                i_r = 1000
+        pygame.draw.rect(screen, RED, (safe_zone_x1, safe_zone_y1, 100, 20))
+        pygame.draw.rect(screen, RED, (safe_zone_x2, safe_zone_y2, 100, 20))
+        if kd <= 0:
+            et = 4000
+            st = 3000
+            wtr = False
+            kd = 3000
+            screen.blit(background_img, background_rect)
+    screen.blit(hrts[i - 1], (10, 10))
+    if i >= len(hrts) - 1:
+        running = False
+    # Обработка условий времени для отображения воды
+    # if current_time - start_time >= water_counter:
+    #     show_water = not show_water
+    #     water_counter = current_time + water_duration
+    # if show_safe_zone:
+    #     pygame.draw.rect(screen, RED, (safe_zone_x1, safe_zone_y1, 100, 20))
+    #     pygame.draw.rect(screen, RED, (safe_zone_x2, safe_zone_y2, 100, 20))
+    # # Отрисовка воды
+    # if show_water:
+    #     pygame.draw.rect(screen, BLUE, (rect_left, rect_top, rect_right - rect_left, rect_bottom - rect_top))
+    #     if show_safe_zone:
+    #         pygame.draw.rect(screen, RED, (safe_zone_x1, safe_zone_y1, 100, 20))
+    #         pygame.draw.rect(screen, RED, (safe_zone_x2, safe_zone_y2, 100, 20))
+
+    # Отрисовка safe-зон
+    # if show_safe_zone:
+    #     pygame.draw.rect(screen, RED, (safe_zone_x1, safe_zone_y1, 100, 20))
+    #     pygame.draw.rect(screen, RED, (safe_zone_x2, safe_zone_y2, 100, 20))
+    # Отрисовка игрока
+    if pygame.key.get_pressed()[pygame.K_SPACE]:
+        screen.blit(player_hit_img, player_rect)
+    else:
+        screen.blit(player_imgs[current_player_img], player_rect)
+
+    pygame.display.flip()
+
+    pygame.time.Clock().tick(60)
+
+# Завершение игры
+pygame.quit()
+sys.exit()
