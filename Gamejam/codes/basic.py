@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+import math 
 from UI import Button
 
 pygame.init()
@@ -45,8 +46,10 @@ reverse_playerRun=image.reverse_playerRun
 
 level1_image = pygame.image.load("image/level1.png")
 level1 = pygame.transform.scale(level1_image, (2400, 2400))
-
+lose_image=pygame.image.load("image/lose.png")
+lose=pygame.transform.scale(lose_image, (screen_width, screen_height))
 # Настройки анимации
+i=0
 animEnemy = 0
 anim = 0
 anim_heart = 0
@@ -161,13 +164,22 @@ while running:
         screen.blit(level1, (x, y))
 
     # Отображение сердец
-        screen.blit(hearts[0], (10, 10))
+        screen.blit(hearts[i], (10, 10))
 
     # Отображение и обновление позиции врагов
         for enemy in enemies:
             enemy.update(player_x, player_y, shift_x, shift_y,x1_enemy,x2_enemy, y1_enemy, y2_enemy)
             enemy.draw(screen,reverse_enemyRun, enemyRun, anim_divide, animEnemy)
-        
+            if enemy.x  + 50 >= player_x and enemy.x - 50 <= player_x:
+                if enemy.y + 50 >= player_y and enemy.y - 50 <= player_y:
+                    if i<9:
+                        i+=1
+                    print(i)
+                    print(len(hearts))
+                    
+            
+                print("VJVJSVBKJBVJKBVJKBKJBJKSJBVKSBVVJBJKBKVS")
+
 
     # Анимация удара
         if hit_animation:
@@ -201,10 +213,10 @@ while running:
     
 
 
+    if i >= len(hearts) - 1:
+        screen.blit(lose, (0, 0))
     pygame.display.flip()
     clock.tick(10)
 
 pygame.quit()
 sys.exit()
-
-
