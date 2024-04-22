@@ -16,7 +16,7 @@ BLUE = (0, 0, 255)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("двигается")
-
+boss_image = import_image.image.boss
 # Глобальные переменные для времени и состояния воды
 start_time = pygame.time.get_ticks()
 water_height = 0
@@ -41,6 +41,16 @@ player_hit_img = pygame.transform.scale(player_hit_img, (int(120), int(96)))
 
 player_rect = player_imgs[0].get_rect()
 
+
+class Boss:
+    def __init__(self):
+        self.x = WIDTH // 2
+        self.y = HEIGHT //2 - 100
+        self.image = boss_image[0]
+        self.rect = self.image.get_rect()
+        self.rect.center = (self.x, self.y)
+        self.HP = 3
+
 #
 player_rect.centerx = WIDTH // 2
 player_rect.bottom = HEIGHT - 10
@@ -55,7 +65,7 @@ rect_bottom = 567
 
 i_r = 1000
 
-et = 4000
+et = 5000
 st = 3000
 kd = 3000
 wtr = False
@@ -66,6 +76,7 @@ background_rect = background_img.get_rect()
 
 safe_zone_x1, safe_zone_x2, safe_zone_y1, safe_zone_y2 = 0, 0, 0, 0
 # Основной цикл игры
+B1 = Boss()
 running = True
 while running:
     for event in pygame.event.get():
@@ -90,10 +101,10 @@ while running:
     # Ограничение движения игрока в пределах прямоугольника
     player_rect.x = max(rect_left, min(player_rect.x, rect_right - player_rect.width))
     player_rect.y = max(rect_top, min(player_rect.y, rect_bottom - player_rect.height))
-
     screen.blit(hrts[i-1], (10, 10))
     # Отрисовка фона
     screen.blit(background_img, background_rect)
+    screen.blit(B1.image, B1.rect)
     # Обработка условий времени для отображения safe-зоны
     # current_time = pygame.time.get_ticks()
     # if current_time - start_time >= safe_zone_counter:
@@ -131,7 +142,7 @@ while running:
         pygame.draw.rect(screen, RED, (safe_zone_x1, safe_zone_y1, 100, 20))
         pygame.draw.rect(screen, RED, (safe_zone_x2, safe_zone_y2, 100, 20))
         if kd <= 0:
-            et = 4000
+            et = 5000
             st = 3000
             wtr = False
             kd = 3000
@@ -160,9 +171,15 @@ while running:
     # Отрисовка игрока
     if pygame.key.get_pressed()[pygame.K_SPACE]:
         screen.blit(player_hit_img, player_rect)
+        if B1.rect.x + 50 >= player_rect.x and B1.rect.x - 50 <= player_rect.x:
+            if B1.rect.y + 300 >= player_rect.y and B1.rect.y  - 300 <= player_rect.y:
+                B1.HP-=1
+                print("-1")
     else:
         screen.blit(player_imgs[current_player_img], player_rect)
 
+    if B1.HP == 0:
+        running = False
     pygame.display.flip()
 
     pygame.time.Clock().tick(60)
