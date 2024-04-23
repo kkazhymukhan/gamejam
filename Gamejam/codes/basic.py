@@ -5,7 +5,7 @@ import math
 from UI import Button
 from UI import Lose
 from poligon import Poligon
-
+import subprocess
 
 
 def restart_game():
@@ -73,7 +73,8 @@ anim_heart = 0
 anim_last = 1
 anim_divide = 1
 enemyAnimation = "run"
-
+animation_hit="hit"
+animation_run="run"
 last_direction = "right"
 
 # Класс для врагов
@@ -96,6 +97,7 @@ while running:
             running = False
         
     
+    animation = "peace"
 
 
     if button.visible:
@@ -113,26 +115,11 @@ while running:
             background_song.play()
             ui_visible = False
         
-            
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                #print("Удар!")
-                hit_animation = True
-                animation="hit"
-                if number_sound == 0:
-                    hit_sound[0].play()
-                    number_sound = 1
-                else:
-                    hit_sound[1].play()
-                    number_sound = 0
-        elif event.type == pygame.MOUSEBUTTONUP:
-            if event.button == 1:
-                hit_animation = False
+
     # Движение игрока
         keys = pygame.key.get_pressed()
         shift_x=0
         shift_y=0
-        animation = "peace"
         
         if keys[pygame.K_d] and poligon.is_inside_polygons(x-player_speed,y):
             x -= player_speed
@@ -163,22 +150,38 @@ while running:
 
 
 
+
+
+            
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                for enemy in enemies:
+                    if math.sqrt((player_x - enemy.x) ** 2 + (player_y - enemy.y) ** 2)<100:
+                        enemy.hit_count += 1
+                        print(enemy.hit_count)
+                        if enemy.hit_count > 5:  
+                            enemy.x = 3000  
+                            enemy.y = 3000
+                hit_animation = True
+                if number_sound == 0:
+                    hit_sound[0].play()
+                    number_sound = 1
+                else:
+                    hit_sound[1].play()
+                    number_sound = 0
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1:
+                hit_animation = False
+
+                
+
         if enemyAnimation=="run":
                 if animEnemy==anim_last:
                     animEnemy=0
                 else:
                     animEnemy +=1
-        if animation=="hit":
-                if anim==anim_last:
-                    anim=0
-                else:
-                    anim +=1
+                    
 
-        elif animation=="run":
-               if anim==anim_last:
-                    anim=0
-               else:
-                    anim +=1
     
 
     # Отображение фона
@@ -202,35 +205,47 @@ while running:
                     enemy.draw(screen,reverse_enemyRun, enemyRun, anim_divide, animEnemy)
                     if i<9:
                         i+=1
-                    #print(i)
-                    #print(len(hearts))
-                    
-            
-                #print("VJVJSVBKJBVJKBVJKBKJBJKSJBVKSBVVJBJKBKVS")
+
+                    print(i)
 
 
-    # Анимация удара
+
+
+
+
+
         if hit_animation:
             if last_direction == "left":
-                screen.blit(reverse_playerHit[anim // anim_divide], (player_x, player_y))
+                screen.blit(reverse_playerHit[1], (player_x, player_y))
             else:
-                screen.blit(playerHit[anim // anim_divide], (player_x, player_y))
-        
-        else:
-        # Анимация бега только при движении
-        
-            if last_direction == "left":
-                screen.blit(reverse_playerRun[anim // anim_divide], (player_x, player_y))
-            else:
-                screen.blit(playerRun[anim // anim_divide], (player_x, player_y))
+                screen.blit(playerHit[1], (player_x, player_y))
             
-        
-            # Отображение стоящего персонажа
-            if last_direction == "left":
-                screen.blit(reverse_playerRun[anim // anim_divide], (player_x, player_y))
+        else:
+            if keys[pygame.K_a] or keys[pygame.K_w] or keys[pygame.K_s] or keys[pygame.K_d]:
+                if last_direction == "left":
+                    screen.blit(reverse_playerRun[anim // anim_divide], (player_x, player_y))
+                else:
+                    screen.blit(playerRun[anim // anim_divide], (player_x, player_y))
+                if anim == anim_last:
+                    anim = 0
+                else:
+                    anim += 1
+                    print(anim)
             else:
-                screen.blit(playerRun[anim // anim_divide], (player_x, player_y))
+                if last_direction == "left":
+                    screen.blit(reverse_playerRun[0], (player_x, player_y))
+                else:
+                    screen.blit(playerRun[0], (player_x, player_y))
 
+
+
+
+
+
+
+
+
+ 
     # Остановка и возобновление музыки
         if keys[pygame.K_t]:
             background_song.stop()
@@ -249,6 +264,8 @@ while running:
 
         if lose.restart_clicked==False:
             restart_game()
+        elif keys[pygame.K_SPACE]:
+            subprocess.run([sys.executable, 'boss.py'])
         
     #print(x,",",y)
         
