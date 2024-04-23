@@ -42,3 +42,27 @@ class image:
     pygame.transform.flip(enemyRun[0], True, False),
     pygame.transform.flip(enemyRun[1], True, False)
     ]
+
+
+    boss = [
+    pygame.transform.scale(pygame.image.load("image/boss/boss.png"), (300, 200)),
+    pygame.transform.scale(pygame.image.load("image/boss/boss1.png"), (300, 200)),
+    pygame.transform.scale(pygame.image.load("image/boss/boss2.png"), (300, 200)),
+    pygame.transform.scale(pygame.image.load("image/boss/boss3.png"), (300, 200))
+    ]
+
+
+    boss_bg=[
+    pygame.transform.scale(pygame.image.load("image/boss_bg/boss1.png"), (600, 600)),
+    pygame.transform.scale(pygame.image.load("image/boss_bg/boss11.png"), (600, 600)),
+    pygame.transform.scale(pygame.image.load("image/boss_bg/boss2.png"), (600, 600)),
+    pygame.transform.scale(pygame.image.load("image/boss_bg/boss3.png"), (600, 600)),
+    pygame.transform.scale(pygame.image.load("image/boss_bg/boss4.png"), (600, 600)),
+    pygame.transform.scale(pygame.image.load("image/boss_bg/boss5.png"), (600, 600)),
+    pygame.transform.scale(pygame.image.load("image/boss_bg/boss6.png"), (600, 600)),
+    pygame.transform.scale(pygame.image.load("image/boss_bg/boss7.png"), (600, 600)),
+    pygame.transform.scale(pygame.image.load("image/boss_bg/boss8.png"), (600, 600)),
+    pygame.transform.scale(pygame.image.load("image/boss_bg/boss9.png"), (600, 600)),
+    pygame.transform.scale(pygame.image.load("image/boss_bg/boss10.png"), (600, 600))
+
+    ]
