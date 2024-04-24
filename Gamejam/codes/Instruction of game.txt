@@ -1,0 +1,5 @@
+Key w- up
+Key s- down
+Key a-left
+Key d-ridht
+Mouse button left- atack
