@@ -9,16 +9,26 @@ import subprocess
 
 
 def restart_game():
-    global i, x, y, x1_enemy, x2_enemy, y1_enemy, y2_enemy, enemies, player_x, player_y, running
+    global i, x, y, x1_enemy, x2_enemy, y1_enemy, y2_enemy, x1_enemy1, x2_enemy1, y1_enemy1, y2_enemy1, x1_enemy2, x2_enemy2, y1_enemy2, y2_enemy2, enemies, player_x, player_y, running, boss, ui_visible, lose1
     i = 0
     x = -50
     y = -500
     x1_enemy = 843
     x2_enemy = 1350
     y1_enemy = 120
-    y2_enemy = 670
-    enemies = [Enemy(random.randint(x1_enemy, x2_enemy), random.randint(y1_enemy, y2_enemy), 4) for _ in range(5)]
-    player_x, player_y = screen_width // 2, screen_height // 2
+    y2_enemy = 630
+    x1_enemy1 = 1645
+    x2_enemy1 = 1980
+    y1_enemy1 = -170
+    y2_enemy1 = 490
+    x1_enemy2 = 1390
+    x2_enemy2 = 1840
+    y1_enemy2 = 910
+    y2_enemy2 = 1240
+    boss=True
+    ui_visible=True
+    lose1=True
+    enemies = [Enemy(random.randint(x1_enemy, x2_enemy), random.randint(y1_enemy, y2_enemy), 4) for _ in range(8)]+[Enemy(random.randint(x1_enemy1, x2_enemy1), random.randint(y1_enemy1, y2_enemy1), 4) for _ in range(9)]+[Enemy(random.randint(x1_enemy2, x2_enemy2), random.randint(y1_enemy2, y2_enemy2), 4) for _ in range(3)]     
     running = True
 
 pygame.init()
@@ -37,7 +47,8 @@ stop_start = 0
 background_UI_song = pygame.mixer.Sound("music/backgraund_UI.mp3")
 background_UI_song.play()
 ui_visible = True
-
+lose_song = pygame.mixer.Sound("music/lose.mp3")
+lose1=True
 
 hit_sound = [
     pygame.mixer.Sound("music/hit1.mp3"),
@@ -51,7 +62,15 @@ y = -500
 x1_enemy = 843
 x2_enemy = 1350
 y1_enemy = 120
-y2_enemy = 670
+y2_enemy = 630
+x1_enemy1 = 1645
+x2_enemy1 = 1980
+y1_enemy1 = -170
+y2_enemy1 = 490
+x1_enemy2 = 1390
+x2_enemy2 = 1840
+y1_enemy2 = 910
+y2_enemy2 = 1240
 
 # Загрузка изображений
 from import_image import image
@@ -81,12 +100,14 @@ last_direction = "right"
 from enemy import Enemy
 
 # Создание врагов
-enemies = [Enemy(random.randint(x1_enemy, x2_enemy), random.randint(y1_enemy, y2_enemy), 4) for _ in range(5)]
+enemies = [Enemy(random.randint(x1_enemy, x2_enemy), random.randint(y1_enemy, y2_enemy), 4) for _ in range(8)]+[Enemy(random.randint(x1_enemy1, x2_enemy1), random.randint(y1_enemy1, y2_enemy1), 4) for _ in range(9)]+[Enemy(random.randint(x1_enemy2, x2_enemy2), random.randint(y1_enemy2, y2_enemy2), 4) for _ in range(3)]        
+active_enemies = len(enemies) 
+
 
 # Позиция игрока
 player_x, player_y = screen_width // 2, screen_height // 2
 player_speed = 15
-
+boss=True
 running = True
 hit_animation = False
 mouse_button_down = False
@@ -98,6 +119,7 @@ while running:
         
     
     animation = "peace"
+
 
 
     if button.visible:
@@ -127,6 +149,10 @@ while running:
             animation="run"
             x1_enemy-=player_speed
             x2_enemy-=player_speed
+            x1_enemy1-=player_speed
+            x2_enemy1-=player_speed
+            x1_enemy2-=player_speed
+            x2_enemy2-=player_speed
             last_direction = "right"
         elif keys[pygame.K_a] and poligon.is_inside_polygons(x+player_speed,y):
             x += player_speed
@@ -134,6 +160,10 @@ while running:
             animation="run"
             x1_enemy+=player_speed
             x2_enemy+=player_speed
+            x1_enemy1+=player_speed
+            x2_enemy1+=player_speed
+            x1_enemy2+=player_speed
+            x2_enemy2+=player_speed
             last_direction = "left"
         if keys[pygame.K_s] and poligon.is_inside_polygons(x,y-player_speed):
             y -= player_speed
@@ -141,12 +171,21 @@ while running:
             animation="run"
             y1_enemy-=player_speed
             y2_enemy-=player_speed
+            y1_enemy1-=player_speed
+            y2_enemy1-=player_speed
+            y1_enemy2-=player_speed
+            y2_enemy2-=player_speed
         elif keys[pygame.K_w]and poligon.is_inside_polygons(x,y+player_speed):
             y += player_speed
             shift_y=shift_y+player_speed
             animation="run"
             y1_enemy+=player_speed
             y2_enemy+=player_speed
+            y1_enemy1+=player_speed
+            y2_enemy1+=player_speed
+            y1_enemy2+=player_speed
+            y2_enemy2+=player_speed
+
 
 
 
@@ -162,6 +201,7 @@ while running:
                         if enemy.hit_count > 5:  
                             enemy.x = 3000  
                             enemy.y = 3000
+                            active_enemies -= 1 
                 hit_animation = True
                 if number_sound == 0:
                     hit_sound[0].play()
@@ -195,7 +235,8 @@ while running:
         
     # Отображение и обновление позиции врагов
         for enemy in enemies:
-            enemy.update(player_x, player_y, shift_x, shift_y,x1_enemy,x2_enemy, y1_enemy, y2_enemy)
+            index=enemies.index(enemy)
+            enemy.update(index, player_x, player_y, shift_x, shift_y,x1_enemy,x2_enemy, y1_enemy, y2_enemy,x1_enemy1,x2_enemy1,y1_enemy1,y2_enemy1, x1_enemy2, x2_enemy2, y1_enemy2, y2_enemy2)
             enemy.draw(screen,reverse_enemyRun, enemyRun, anim_divide, animEnemy)
             if enemy.x  + 50 >= player_x and enemy.x - 50 <= player_x:
                 if enemy.y + 50 >= player_y and enemy.y - 50 <= player_y:
@@ -257,17 +298,22 @@ while running:
 
 
     if i >= len(hearts)-1:
+
         lose.restart_clicked=True
         lose.Menu(screen)
         lose.handle_event(event)
-
+        background_song.stop()
+        if lose1:
+            lose_song.play()
+            lose1=False
 
         if lose.restart_clicked==False:
             restart_game()
-        elif keys[pygame.K_SPACE]:
+    if active_enemies == 0 and boss==True and x==-470 and (y<-1310 and y>-1430):
             subprocess.run([sys.executable, 'boss.py'])
+            boss=False
         
-    #print(x,",",y)
+    print(x,",",y)
         
     pygame.display.flip()
     clock.tick(10)
