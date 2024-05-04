@@ -66,3 +66,27 @@ class image:
     pygame.transform.scale(pygame.image.load("image/boss_bg/boss10.png"), (600, 600))
 
     ]
+    win=[
+    pygame.transform.scale(pygame.image.load("image/win/win0.png"), (800, 800)),
+    pygame.transform.scale(pygame.image.load("image/win/win1.png"), (800, 800)),
+    pygame.transform.scale(pygame.image.load("image/win/win2.png"), (800, 800)),
+    pygame.transform.scale(pygame.image.load("image/win/win3.png"), (800, 800)),
+    ]
+
+    cutscene=[
+    pygame.transform.scale(pygame.image.load("image/cutscene/news0.png"), (800, 800)),
+    pygame.transform.scale(pygame.image.load("image/cutscene/news1.png"), (800, 800)),
+    pygame.transform.scale(pygame.image.load("image/cutscene/no0.png"), (800, 800)),
+    pygame.transform.scale(pygame.image.load("image/cutscene/no1.png"), (800, 800)),
+    pygame.transform.scale(pygame.image.load("image/cutscene/pixil-frame-7.png"), (800, 800)),
+    pygame.transform.scale(pygame.image.load("image/cutscene/pixil-frame-8.png"), (800, 800)),
+    pygame.transform.scale(pygame.image.load("image/cutscene/pixil-frame-9.png"), (800, 800)),
+    pygame.transform.scale(pygame.image.load("image/cutscene/pixil-frame-10.png"), (800, 800)),
+    pygame.transform.scale(pygame.image.load("image/cutscene/pixil-frame-11.png"), (800, 800)),
+    pygame.transform.scale(pygame.image.load("image/cutscene/pixil-frame-12.png"), (800, 800)),
+    pygame.transform.scale(pygame.image.load("image/cutscene/pixil-frame-13.png"), (800, 800)),
+    pygame.transform.scale(pygame.image.load("image/cutscene/pixil-frame-14.png"), (800, 800)),
+    pygame.transform.scale(pygame.image.load("image/cutscene/pixil-frame-15.png"), (800, 800)),
+    pygame.transform.scale(pygame.image.load("image/cutscene/pixil-frame-16.png"), (800, 800))
+
+    ]
